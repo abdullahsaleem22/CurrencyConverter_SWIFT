@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ConverterViewController: UIViewController {
 
     @IBOutlet var FromButton: UIButton!
     @IBOutlet var FromNumber: UITextField!
@@ -21,8 +21,28 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        ToNumber.isUserInteractionEnabled = false
+        ToNumber.layer.borderWidth = 1
+        ToNumber.layer.borderColor = UIColor.systemOrange.cgColor
+        ToNumber.layer.cornerRadius = 8
+        ToNumber.layer.masksToBounds = true
+        
+        FromNumber.keyboardType = .decimalPad
+        FromNumber.layer.borderWidth = 1
+        FromNumber.layer.borderColor = UIColor.systemOrange.cgColor
+        FromNumber.layer.cornerRadius = 8
+        FromNumber.layer.masksToBounds = true
+        FromNumber.delegate = self
+        
         NotificationCenter.default.addObserver(self, selector: #selector(reciveFromLabel), name: Notification.Name("from"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(reciveToLabel), name: Notification.Name("to"), object: nil)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            view.addGestureRecognizer(tapGesture)
+    }
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -47,9 +67,20 @@ class ViewController: UIViewController {
     }
     
     @IBAction func ConvertBtnClicked(_ sender: Any) {
-        print(FromNumber.text!)
+        guard let from:String = FromLabel.text else{
+            return
+        }
+        
+        guard let to:String = ToLabel.text else{
+            return
+        }
+        
+        guard let num:String = FromNumber.text else{
+            return
+        }
+        
         Task {
-            let res = await Convert(from: FromLabel.text!, to: ToLabel.text!, num: FromNumber.text!)
+            let res = await Convert(from: from, to: to, num: num)
             ToNumber.text = String(res)
         }
         
@@ -57,4 +88,16 @@ class ViewController: UIViewController {
     
     
 }
+
+extension ConverterViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.layer.borderWidth = 2
+        textField.layer.borderColor = UIColor.systemOrange.cgColor
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.borderWidth = 1
+    }
+}
+
 

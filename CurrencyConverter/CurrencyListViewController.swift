@@ -20,16 +20,12 @@ class CurrencyListViewController: UIViewController {
         super.viewDidLoad()
         Task {
             currencies = await getCurrencyList()
-            DispatchQueue.main.async {
-                self.table.reloadData()
-            }
+            self.table.reloadData()
         }
         table.dataSource = self
         table.delegate = self
                 
     }
-    
-    
 
 }
 
@@ -49,7 +45,11 @@ extension CurrencyListViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        NotificationCenter.default.post(name: NSNotification.Name(label!), object: currencies[indexPath.row].isoCode)
+        guard let name : String = label else{
+            dismiss(animated: true)
+            return
+        }
+        NotificationCenter.default.post(name: NSNotification.Name(name), object: currencies[indexPath.row].isoCode)
         dismiss(animated: true)
     }
 }

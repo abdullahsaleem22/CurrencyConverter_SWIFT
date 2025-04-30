@@ -27,11 +27,21 @@ func Convert (from:String, to:String, num:String) async  -> Double {
     do {
         let (data, _) = try await URLSession.shared.data(for: request)
         let response = try JSONDecoder().decode(ExchangeRatesResponse.self, from: data)
-        let fromRate = response.rates[from]
-        let toRate = response.rates[to]
         
-        var result = fromRate! * Double(num)!
-        result = result * toRate!
+        guard let fromRate = response.rates[from] else{
+            return 0
+        }
+        
+        guard let toRate = response.rates[to] else{
+            return 0
+        }
+        
+        guard let number:Double = Double(num) else{
+            return 0
+        }
+        
+        var result = fromRate * number
+        result = result * toRate
         
         return result
         
